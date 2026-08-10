@@ -10,7 +10,7 @@ google:
 bitrix:
   webhook_env: PRAKTIKM_BITRIX_WEBHOOK_URL
   fields:
-    TITLE: {template: "Идентификация LR223 {date}"}
+    TITLE: {template: "ЛидгенБюро_DMP_{source_lead}"}
     PHONE: {phone: true, value_type: WORK}
     SOURCE_ID: {value: "14"}
     STATUS_ID: {value: UC_CT9E1O}
