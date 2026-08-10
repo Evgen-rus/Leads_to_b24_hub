@@ -15,7 +15,7 @@ bitrix:
     SOURCE_ID: {value: "14"}
     STATUS_ID: {value: UC_CT9E1O}
     UTM_SOURCE: {value: leadgenburo_dmp}
-    UTM_MEDIUM: {template: "{source_lead}_{phone}"}
+    UTM_MEDIUM: {from: source_lead}
 
 assignment:
   members:

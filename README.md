@@ -109,7 +109,7 @@ PHONE: {phone: true, value_type: WORK}
 - `STATUS_ID=UC_CT9E1O`
 - `SOURCE_ID=14`
 - `UTM_SOURCE=leadgenburo_dmp`
-- `UTM_MEDIUM={source_lead}_{phone}`
+- `UTM_MEDIUM={source_lead}` — точное содержимое колонки `Источник`, без телефона
 - Пшенникова Дарья: `2751`, вес 3
 - Шапочук Людмила: `2767`, вес 2
 

@@ -38,8 +38,15 @@ class HeaderAndFieldTests(unittest.TestCase):
         self.assertEqual(fields["SOURCE_ID"], "14")
         self.assertEqual(fields["STATUS_ID"], "UC_CT9E1O")
         self.assertEqual(fields["UTM_SOURCE"], "leadgenburo_dmp")
-        self.assertEqual(fields["UTM_MEDIUM"], "Конкурент_+79990000000")
+        self.assertEqual(fields["UTM_MEDIUM"], "Конкурент")
         self.assertEqual(fields["ASSIGNED_BY_ID"], "2751")
+
+        empty_source_fields = build_bitrix_fields(
+            project,
+            {"source_id": "101", "phone": "+79990000001", "source_lead": ""},
+            "2767",
+        )
+        self.assertEqual(empty_source_fields["UTM_MEDIUM"], "")
 
 
 if __name__ == "__main__":

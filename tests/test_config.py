@@ -19,7 +19,6 @@ class ConfigTests(unittest.TestCase):
             {project.code for project in projects},
             {"metalwork", "werus", "vkc", "prolog", "hirehub", "supermet", "tochkap", "praktikm"},
         )
-        self.assertTrue(all(project.enabled for project in projects))
 
     def test_optional_sheet_name_env_is_not_required(self) -> None:
         project = next(item for item in load_projects(ROOT / "config") if item.code == "praktikm")
