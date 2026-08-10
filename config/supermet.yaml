@@ -1,6 +1,6 @@
 code: supermet
 name: Supermet
-enabled: true
+enabled: false
 
 google:
   spreadsheet_id_env: SUPERMET_GOOGLE_SHEET_ID

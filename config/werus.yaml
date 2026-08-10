@@ -1,6 +1,6 @@
 code: werus
 name: Werus
-enabled: true
+enabled: false
 
 google:
   spreadsheet_id_env: WERUS_GOOGLE_SHEET_ID

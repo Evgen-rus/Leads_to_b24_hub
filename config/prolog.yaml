@@ -1,6 +1,6 @@
 code: prolog
 name: Prolog
-enabled: true
+enabled: false
 
 google:
   spreadsheet_id_env: PROLOG_GOOGLE_SHEET_ID
