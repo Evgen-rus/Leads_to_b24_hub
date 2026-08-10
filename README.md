@@ -32,8 +32,8 @@
 cd /opt
 git clone <repository-url> Leads_to_b24_hub
 cd Leads_to_b24_hub
-python3 -m venv venv
-./venv/bin/pip install -r requirements.txt
+python3 -m venv .venv
+./.venv/bin/pip install -r requirements.txt
 mkdir -p logs data secrets
 cp .env.example .env
 ```
@@ -43,9 +43,9 @@ cp .env.example .env
 Проверка конфигураций без доступа к внешним API:
 
 ```bash
-./venv/bin/python manage.py validate
-./venv/bin/python manage.py validate --environment
-./venv/bin/python manage.py list
+./.venv/bin/python manage.py validate
+./.venv/bin/python manage.py validate --environment
+./.venv/bin/python manage.py list
 ```
 
 ## Безопасный первый запуск
@@ -53,7 +53,7 @@ cp .env.example .env
 Сначала отключите проект или вызовите его явно в dry-run:
 
 ```bash
-./venv/bin/python run.py --project praktikm --dry-run --limit 10
+./.venv/bin/python run.py --project praktikm --dry-run --limit 10
 ```
 
 Dry-run читает таблицу и валидирует будущие поля, но не создаёт колонку, не пишет в Google, не вызывает Bitrix и не создаёт delivery-записи.
@@ -61,15 +61,15 @@ Dry-run читает таблицу и валидирует будущие по�
 После проверки:
 
 ```bash
-./venv/bin/python run.py --project praktikm
+./.venv/bin/python run.py --project praktikm
 ```
 
 ## Управление проектами
 
 ```bash
-./venv/bin/python manage.py list
-./venv/bin/python manage.py enable praktikm
-./venv/bin/python manage.py disable praktikm
+./.venv/bin/python manage.py list
+./.venv/bin/python manage.py enable praktikm
+./.venv/bin/python manage.py disable praktikm
 ```
 
 `enabled: false` оставляет весь хвост в таблице. После включения будут обработаны все строки с пустым результатом.
@@ -79,13 +79,14 @@ Dry-run читает таблицу и валидирует будущие по�
 Один график для всех включённых проектов:
 
 ```cron
-*/10 8-18 * * * cd /opt/Leads_to_b24_hub && ./venv/bin/python run.py >> logs/cron.log 2>&1
+CRON_TZ=Europe/Moscow
+31 8-17 * * * cd /opt/Leads_to_b24_hub && ./.venv/bin/python run.py >> logs/cron.log 2>&1
 ```
 
 Отдельное расписание проекта:
 
 ```cron
-5 9-17 * * * cd /opt/Leads_to_b24_hub && ./venv/bin/python run.py --project praktikm >> logs/cron.log 2>&1
+5 9-17 * * * cd /opt/Leads_to_b24_hub && ./.venv/bin/python run.py --project praktikm >> logs/cron.log 2>&1
 ```
 
 Не добавляйте обе строки одновременно для одного проекта.
