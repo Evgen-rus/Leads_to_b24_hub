@@ -1,0 +1,22 @@
+code: supermet
+name: Supermet
+enabled: true
+
+google:
+  spreadsheet_id_env: SUPERMET_GOOGLE_SHEET_ID
+  sheet_name_env: SUPERMET_GOOGLE_SHEET_NAME
+  result_header: Статус_Б24
+
+bitrix:
+  webhook_env: SUPERMET_BITRIX_WEBHOOK_URL
+  fields:
+    TITLE: {template: "LR_конк_ {phone}"}
+    PHONE: {phone: true, value_type: WORK}
+    SOURCE_ID: {env: SUPERMET_BITRIX_SOURCE_ID, default: "106"}
+    STATUS_ID: {env: SUPERMET_BITRIX_STATUS_ID, default: UC_LF7L5W}
+    COMMENTS: {from: source_lead, omit_if_empty: true}
+
+assignment:
+  members:
+    - env: SUPERMET_BITRIX_ASSIGNED_BY_ID
+      default: "20140"

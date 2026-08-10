@@ -1,0 +1,23 @@
+code: hirehub
+name: Hirehub
+enabled: true
+
+google:
+  spreadsheet_id_env: HIREHUB_GOOGLE_SHEET_ID
+  sheet_name_env: HIREHUB_GOOGLE_SHEET_NAME
+  result_header: Статус_Б24
+
+bitrix:
+  webhook_env: HIREHUB_BITRIX_WEBHOOK_URL
+  fields:
+    TITLE: {template: "Перехват лидов {date_ddmmyyyy}"}
+    PHONE: {phone: true, value_type: MOBILE}
+    SOURCE_ID: {env: HIREHUB_BITRIX_SOURCE_ID, default: UC_M09HMS}
+    STATUS_ID: {env: HIREHUB_BITRIX_STATUS_ID, default: NEW}
+    UF_CRM_ROISTAT: {env: HIREHUB_BITRIX_ROISTAT, default: парсинг}
+    COMMENTS: {from: source_lead, omit_if_empty: true}
+
+assignment:
+  members:
+    - env: HIREHUB_BITRIX_ASSIGNED_BY_ID
+      default: "61"

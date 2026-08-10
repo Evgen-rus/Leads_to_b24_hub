@@ -1,0 +1,25 @@
+code: praktikm
+name: ПрактикМ — LR223
+enabled: true
+
+google:
+  spreadsheet_id_env: PRAKTIKM_GOOGLE_SHEET_ID
+  sheet_name_env: PRAKTIKM_GOOGLE_SHEET_NAME
+  result_header: Статус_Б24
+
+bitrix:
+  webhook_env: PRAKTIKM_BITRIX_WEBHOOK_URL
+  fields:
+    TITLE: {template: "Идентификация LR223 {date}"}
+    PHONE: {phone: true, value_type: WORK}
+    SOURCE_ID: {value: "14"}
+    STATUS_ID: {value: UC_CT9E1O}
+    UTM_SOURCE: {value: leadgenburo_dmp}
+    UTM_MEDIUM: {template: "{source_lead}_{phone}"}
+
+assignment:
+  members:
+    - id: "2751"
+      weight: 3
+    - id: "2767"
+      weight: 2

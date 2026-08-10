@@ -1,0 +1,21 @@
+code: tochkap
+name: Tochka P
+enabled: true
+
+google:
+  spreadsheet_id_env: TOCHKAP_GOOGLE_SHEET_ID
+  sheet_name_env: TOCHKAP_GOOGLE_SHEET_NAME
+  result_header: Статус_Б24
+
+bitrix:
+  webhook_env: TOCHKAP_BITRIX_WEBHOOK_URL
+  fields:
+    TITLE: {template: "Перехват лидов {date_ddmmyyyy}"}
+    PHONE: {phone: true, value_type: MOBILE}
+    SOURCE_ID: {env: TOCHKAP_BITRIX_SOURCE_ID}
+    STATUS_ID: {env: TOCHKAP_BITRIX_STATUS_ID}
+    COMMENTS: {from: source_lead, omit_if_empty: true}
+
+assignment:
+  members:
+    - env: TOCHKAP_BITRIX_ASSIGNED_BY_ID
