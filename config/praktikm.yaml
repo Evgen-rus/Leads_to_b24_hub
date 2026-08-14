@@ -21,5 +21,6 @@ assignment:
   members:
     - id: "2751"
       weight: 3
-    - id: "2767"
-      weight: 2
+    # временно: пн–вт Людмила не работает
+    # - id: "2767"
+    #   weight: 2
