@@ -19,8 +19,9 @@ bitrix:
 
 assignment:
   members:
+    # Дарья
     - id: "2751"
       weight: 3
-    # временно: пн–вт Людмила не работает
-    # - id: "2767"
-    #   weight: 2
+    # Людмила
+    - id: "2767"
+      weight: 2
