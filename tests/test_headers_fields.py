@@ -36,7 +36,10 @@ class HeaderAndFieldTests(unittest.TestCase):
             "2751",
         )
         self.assertEqual(fields["SOURCE_ID"], "14")
-        self.assertEqual(fields["STATUS_ID"], "UC_CT9E1O")
+        self.assertEqual(project.bitrix.entity, "deal")
+        self.assertEqual(fields["CATEGORY_ID"], 49)
+        self.assertEqual(fields["STAGE_ID"], "C49:NEW")
+        self.assertNotIn("STATUS_ID", fields)
         self.assertEqual(fields["UTM_SOURCE"], "leadgenburo_dmp")
         self.assertEqual(fields["UTM_MEDIUM"], "Конкурент")
         self.assertEqual(fields["TITLE"], "ЛидгенБюро_DMP_Конкурент")

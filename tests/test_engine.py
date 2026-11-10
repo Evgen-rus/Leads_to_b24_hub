@@ -51,7 +51,7 @@ class FakeBitrix:
     def create(self, project, fields, origin_id: str):
         self.create_calls.append((fields, origin_id))
         lead_id = str(1000 + len(self.create_calls))
-        return CreatedLead(lead_id, f"https://example.bitrix24.ru/crm/lead/details/{lead_id}/")
+        return CreatedLead(lead_id, f"https://example.bitrix24.ru/crm/{project.bitrix.entity}/details/{lead_id}/")
 
 
 class EngineTests(unittest.TestCase):

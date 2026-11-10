@@ -28,6 +28,7 @@ class BitrixConfig:
     webhook_env: str
     fields: dict[str, Any]
     originator_id: str = "leads_to_b24_hub"
+    entity: str = "lead"
 
 
 @dataclass(frozen=True)
@@ -144,6 +145,13 @@ def load_project(path: Path) -> ProjectConfig:
     if not isinstance(fields, dict) or not fields:
         raise ConfigError(f"{path} requires bitrix.fields")
 
+    entity = bitrix_raw.get("entity", "lead")
+    if entity not in {"lead", "deal"}:
+        raise ConfigError(f"{path}: bitrix.entity must be lead or deal")
+    if entity == "deal":
+        if not fields.get("CATEGORY_ID") or not fields.get("STAGE_ID") or "STATUS_ID" in fields:
+            raise ConfigError(f"{path}: deals require CATEGORY_ID and STAGE_ID, without STATUS_ID")
+
     project = ProjectConfig(
         code=code,
         name=str(raw.get("name") or code),
@@ -166,6 +174,7 @@ def load_project(path: Path) -> ProjectConfig:
             webhook_env=str(bitrix_raw.get("webhook_env") or "").strip(),
             fields=fields,
             originator_id=str(bitrix_raw.get("originator_id") or "leads_to_b24_hub").strip(),
+            entity=entity,
         ),
         assignment=AssignmentConfig(tuple(_load_member(item) for item in assignment_raw["members"])),
         path=path,

@@ -40,7 +40,9 @@ class BitrixGateway:
 
     def _call(self, project: ProjectConfig, method: str, payload: dict[str, Any]) -> Any:
         webhook = self._webhook(project)
-        for attempt in range(self.max_retries + 1):
+        # An add may have succeeded before a timeout; recover by origin on the next run.
+        retries = 0 if method.endswith(".add") else self.max_retries
+        for attempt in range(retries + 1):
             try:
                 response = self.session.post(
                     f"{webhook}/{method}",
@@ -51,7 +53,7 @@ class BitrixGateway:
                 data = response.json() if response.content else {}
                 api_error = str(data.get("error") or "").upper()
                 transient = response.status_code in TRANSIENT_CODES or api_error in TRANSIENT_ERRORS
-                if transient and attempt < self.max_retries:
+                if transient and attempt < retries:
                     time.sleep(min(30.0, 2**attempt + random.random()))
                     continue
                 if not response.ok:
@@ -59,22 +61,32 @@ class BitrixGateway:
                 if data.get("error"):
                     raise RuntimeError(f"Bitrix {method} failed: {data.get('error')}")
                 return data.get("result")
-            except requests.RequestException as error:
-                if attempt >= self.max_retries:
-                    raise RuntimeError(f"Bitrix {method} network request failed") from error
+            except requests.RequestException:
+                if attempt >= retries:
+                    raise RuntimeError(f"Bitrix {method} network request failed") from None
                 time.sleep(min(30.0, 2**attempt + random.random()))
+            except ValueError:
+                raise RuntimeError(f"Bitrix {method} returned invalid JSON") from None
         raise RuntimeError(f"Bitrix {method} failed")
 
     @staticmethod
-    def lead_url(project: ProjectConfig, lead_id: str) -> str:
+    def lead_url(project: ProjectConfig, lead_id: str, entity: str | None = None) -> str:
         webhook = BitrixGateway._webhook(project)
         parsed = urlsplit(webhook)
-        return f"{parsed.scheme}://{parsed.netloc}/crm/lead/details/{lead_id}/"
+        return f"{parsed.scheme}://{parsed.netloc}/crm/{entity or project.bitrix.entity}/details/{lead_id}/"
 
     def find_by_origin(self, project: ProjectConfig, origin_id: str) -> CreatedLead | None:
+        entities = ("deal", "lead") if project.bitrix.entity == "deal" else ("lead",)
+        for entity in entities:
+            entity_id = self._find_origin_id(project, entity, origin_id)
+            if entity_id:
+                return CreatedLead(entity_id, self.lead_url(project, entity_id, entity), recovered=True)
+        return None
+
+    def _find_origin_id(self, project: ProjectConfig, entity: str, origin_id: str) -> str | None:
         result = self._call(
             project,
-            "crm.lead.list",
+            f"crm.{entity}.list",
             {
                 "filter": {
                     "ORIGINATOR_ID": project.bitrix.originator_id,
@@ -84,20 +96,53 @@ class BitrixGateway:
                 "order": {"ID": "ASC"},
             },
         )
-        rows = result if isinstance(result, list) else []
-        if not rows:
+        if not isinstance(result, list):
+            raise RuntimeError(f"Bitrix crm.{entity}.list returned an invalid result")
+        if not result:
             return None
-        lead_id = str(rows[0].get("ID") or "").strip()
+        lead_id = str(result[0].get("ID") or "").strip()
         if not lead_id:
-            return None
-        return CreatedLead(lead_id, self.lead_url(project, lead_id), recovered=True)
+            raise RuntimeError(f"Bitrix crm.{entity}.list returned no ID")
+        return lead_id
+
+    def _contact_id(self, project: ProjectConfig, fields: dict[str, Any], origin_id: str) -> str:
+        existing = self._find_origin_id(project, "contact", origin_id)
+        if existing:
+            return existing
+        phones = fields.get("PHONE") or []
+        if not phones or not all(item.get("VALUE") for item in phones):
+            raise ConfigError("Deal delivery requires a contact phone")
+        duplicates = self._call(project, "crm.duplicate.findbycomm", {
+            "entity_type": "CONTACT", "type": "PHONE",
+            "values": [item["VALUE"] for item in phones],
+        })
+        if not isinstance(duplicates, dict) and duplicates != []:
+            raise RuntimeError("Bitrix duplicate search returned an invalid result")
+        contacts = duplicates.get("CONTACT", []) if isinstance(duplicates, dict) else []
+        if contacts:
+            return str(min(contacts, key=int))
+        result = self._call(project, "crm.contact.add", {"fields": {
+            "NAME": fields["TITLE"],
+            "PHONE": phones,
+            "ASSIGNED_BY_ID": fields["ASSIGNED_BY_ID"],
+            "SOURCE_ID": fields.get("SOURCE_ID", ""),
+            "ORIGINATOR_ID": project.bitrix.originator_id,
+            "ORIGIN_ID": origin_id,
+        }})
+        if not result:
+            raise RuntimeError("Bitrix crm.contact.add returned no contact ID")
+        return str(result)
 
     def create(self, project: ProjectConfig, fields: dict[str, Any], origin_id: str) -> CreatedLead:
         payload_fields = dict(fields)
         payload_fields["ORIGINATOR_ID"] = project.bitrix.originator_id
         payload_fields["ORIGIN_ID"] = origin_id
-        result = self._call(project, "crm.lead.add", {"fields": payload_fields})
+        if project.bitrix.entity == "deal":
+            payload_fields["CONTACT_IDS"] = [self._contact_id(project, fields, origin_id)]
+            payload_fields.pop("PHONE", None)
+        method = f"crm.{project.bitrix.entity}.add"
+        result = self._call(project, method, {"fields": payload_fields})
         lead_id = str(result or "").strip()
         if not lead_id:
-            raise RuntimeError("Bitrix crm.lead.add returned no lead ID")
+            raise RuntimeError(f"Bitrix {method} returned no ID")
         return CreatedLead(lead_id, self.lead_url(project, lead_id))

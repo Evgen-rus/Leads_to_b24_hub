@@ -27,6 +27,23 @@ class ConfigTests(unittest.TestCase):
         self.assertNotIn("PRAKTIKM_GOOGLE_SHEET_NAME", missing)
         self.assertIn("PRAKTIKM_GOOGLE_SHEET_ID", missing)
 
+    def test_only_praktikm_uses_deals(self) -> None:
+        for project in load_projects(ROOT / "config"):
+            self.assertEqual(project.bitrix.entity, "deal" if project.code == "praktikm" else "lead")
+
+    def test_invalid_entity_and_lead_status_for_deal_are_rejected(self) -> None:
+        original = (ROOT / "config/praktikm.yaml").read_text(encoding="utf-8")
+        for content in (
+            original.replace("entity: deal", "entity: invalid"),
+            original.replace("STAGE_ID:", "STATUS_ID:"),
+            original.replace("CATEGORY_ID:", "OTHER_FIELD:"),
+        ):
+            with self.subTest(content=content), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "project.yaml"
+                path.write_text(content, encoding="utf-8")
+                with self.assertRaises(ConfigError):
+                    load_project(path)
+
     def test_invalid_project_code_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "bad.yaml"

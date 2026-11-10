@@ -8,23 +8,19 @@ google:
   result_header: Статус_Б24
 
 bitrix:
+  entity: deal
   webhook_env: PRAKTIKM_BITRIX_WEBHOOK_URL
   fields:
     TITLE: {template: "ЛидгенБюро_DMP_{source_lead}"}
     PHONE: {phone: true, value_type: WORK}
     SOURCE_ID: {value: "14"}
-    STATUS_ID: {value: UC_CT9E1O}
+    CATEGORY_ID: {value: 49}
+    STAGE_ID: {value: "C49:NEW"}
     UTM_SOURCE: {value: leadgenburo_dmp}
     UTM_MEDIUM: {from: source_lead}
 
 assignment:
   members:
-    # Дарья
-    - id: "2751"
-      weight: 1
-    # Людмила
-    - id: "2767"
-      weight: 1
     # Дмитрий
     - id: "2775"
       weight: 1

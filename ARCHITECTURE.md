@@ -7,7 +7,7 @@
 | Клиентские настройки без секретов | `config/*.yaml` |
 | Секреты и ссылки на таблицы | переменные окружения / `.env` на VPS |
 | Чтение и запись Google Sheets | `lead_hub/google_sheets.py` |
-| Создание и поиск лидов Bitrix | `lead_hub/bitrix.py` |
+| Создание и поиск лидов/сделок и контактов Bitrix | `lead_hub/bitrix.py` |
 | Сборка полей Bitrix | `lead_hub/fields.py` |
 | Доставка и порядок действий | `lead_hub/engine.py` |
 | SQLite и распределение | `lead_hub/storage.py` |
@@ -31,7 +31,11 @@
 3. При отсутствии результата gateway добавляет справа `Статус_Б24`.
 4. Engine пропускает любую строку с непустым результатом.
 5. Для пустой строки SQLite закрепляет ответственного и delivery state.
-6. Bitrix gateway ищет `ORIGINATOR_ID + ORIGIN_ID`, затем при необходимости вызывает `crm.lead.add`.
+6. Bitrix gateway ищет `ORIGINATOR_ID + ORIGIN_ID`, затем при необходимости
+   вызывает `crm.lead.add` или `crm.deal.add` согласно `bitrix.entity` (default: `lead`).
+   Для сделки находит контакт по origin или телефону, иначе создаёт контакт,
+   и передаёт его через `CONTACT_IDS`. Для защиты старых доставок поиск сделки
+   дополнительно проверяет лиды с тем же origin.
 7. SQLite сохраняет ID/URL, Google получает URL, delivery становится completed.
 8. Если Google недоступен, delivery остаётся created и следующий запуск повторяет только Google write.
 
@@ -46,3 +50,14 @@
 - `phone: true` — Bitrix multi-field PHONE.
 
 Новый Python-обработчик допустим только для поведения, которое нельзя выразить этими правилами.
+
+## Переход PraktikM на сделки
+
+- `bitrix.entity: deal`, `CATEGORY_ID=49`, `STAGE_ID=C49:NEW`.
+- Старые имена `CreatedLead`, `lead_id`, `bitrix_lead_id`, `lead_url` сохранены
+  для совместимости; хранят ID и URL созданной CRM-записи, включая сделки.
+- Схема SQLite и ключ `(project_code, source_id)` не меняются. Старые ссылки
+  восстанавливаются как есть, без повторной отправки или конвертации.
+- `.add` не повторяется внутри HTTP-клиента после ошибки: следующий запуск
+  восстанавливает контакт/сделку по origin перед новой попыткой создания.
+- Cron и ручные запуски на VPS используют один `flock` (`data/worker.lock`).

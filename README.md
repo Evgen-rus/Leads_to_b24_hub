@@ -61,7 +61,7 @@ Dry-run читает таблицу и валидирует будущие по�
 После проверки:
 
 ```bash
-./.venv/bin/python run.py --project praktikm
+flock -n data/worker.lock ./.venv/bin/python run.py --project praktikm
 ```
 
 ## Управление проектами
@@ -80,13 +80,13 @@ Dry-run читает таблицу и валидирует будущие по�
 
 ```cron
 CRON_TZ=Europe/Moscow
-31 8-17 * * * cd /opt/Leads_to_b24_hub && ./.venv/bin/python run.py >> logs/cron.log 2>&1
+31 8-17 * * * cd /opt/Leads_to_b24_hub && flock -n data/worker.lock ./.venv/bin/python run.py >> logs/cron.log 2>&1
 ```
 
 Отдельное расписание проекта:
 
 ```cron
-5 9-17 * * * cd /opt/Leads_to_b24_hub && ./.venv/bin/python run.py --project praktikm >> logs/cron.log 2>&1
+5 9-17 * * * cd /opt/Leads_to_b24_hub && flock -n data/worker.lock ./.venv/bin/python run.py --project praktikm >> logs/cron.log 2>&1
 ```
 
 Не добавляйте обе строки одновременно для одного проекта.
@@ -107,14 +107,29 @@ PHONE: {phone: true, value_type: WORK}
 
 ## ПрактикМ LR223
 
-- `STATUS_ID=UC_CT9E1O`
+- Создаются сделки: `CATEGORY_ID=49`, `STAGE_ID=C49:NEW` («Новый контакт»).
+- Телефон сохраняется в связанном контакте. Сначала ищется контакт по origin,
+  затем по телефону; существующий контакт не изменяется.
 - `SOURCE_ID=14`
 - `UTM_SOURCE=leadgenburo_dmp`
 - `UTM_MEDIUM={source_lead}` — точное содержимое колонки `Источник`, без телефона
-- Пшенникова Дарья: `2751`, вес 3
-- Шапочук Людмила: `2767`, вес 2
+- Дмитрий: `2775`, вес 1 (действующая настройка VPS).
 
-Цикл `2751, 2751, 2751, 2767, 2767` сохраняется в SQLite между cron-запусками. Дневных лимитов нет.
+Назначенный строке ответственный сохраняется в SQLite при повторных попытках. Дневных лимитов нет.
+У остальных проектов `bitrix.entity` по умолчанию равен `lead`.
+
+Старые лиды не переносятся. Непустые отметки в таблице и прежние записи SQLite
+сохраняются. При поиске origin PraktikM проверяет сначала сделки, затем старые
+лиды, чтобы не создать сделку повторно для уже отправленной строки.
+Вызовы создания не повторяются автоматически после сетевой ошибки: следующий
+запуск сначала ищет результат по origin.
+
+На VPS cron запускает worker через `flock -n data/worker.lock`, чтобы плановый
+и ручной запуски не отправляли одну строку одновременно. При ручном запуске:
+
+```bash
+flock -n data/worker.lock ./.venv/bin/python run.py --project praktikm
+```
 
 ## CI/CD и секреты
 
