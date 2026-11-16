@@ -10,6 +10,7 @@
 - `prolog`
 - `hirehub`
 - `supermet`
+- `supermet_lr231` (СуперМет LR231, отдельная интеграция)
 - `tochkap`
 - `praktikm`
 
@@ -104,6 +105,15 @@ PHONE: {phone: true, value_type: WORK}
 ```
 
 Доступные переменные шаблона: `source_id`, `phone`, `event_dt`, `channel`, `source_lead`, `project_code`, `date`, `date_ddmmyyyy`.
+
+## СуперМет LR231
+
+Отдельная конфигурация `supermet_lr231` для вкладки «Данные»: лиды со статусом
+`NEW`, источником `102` («САНКТ-ПЕТЕРБУРГ. LeadRecord. Металлобаза Волхонка»)
+и ответственным `5312` («Системный Администратор Битрикс24»).
+Таблица и webhook задаются через `SUPERMET_LR231_GOOGLE_SHEET_ID` и
+`SUPERMET_LR231_BITRIX_WEBHOOK_URL`. Автоотправка пока выключена (`enabled: false`);
+старый проект `supermet` не меняется.
 
 ## ПрактикМ LR223
 

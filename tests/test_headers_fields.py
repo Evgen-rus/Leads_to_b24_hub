@@ -53,6 +53,21 @@ class HeaderAndFieldTests(unittest.TestCase):
         self.assertEqual(empty_source_fields["UTM_MEDIUM"], "")
         self.assertEqual(empty_source_fields["TITLE"], "ЛидгенБюро_DMP_")
 
+    def test_supermet_lr231_uses_client_requested_settings(self) -> None:
+        project = next(item for item in load_projects(ROOT / "config") if item.code == "supermet_lr231")
+        self.assertFalse(project.enabled)
+        self.assertEqual(project.assignment.resolved_cycle(), ("5312",))
+        fields = build_bitrix_fields(project, {
+            "phone": "+70000000000", "source_lead": "Тест", "channel": "Тестовый канал",
+        }, project.assignment.resolved_cycle()[0])
+        self.assertEqual(project.bitrix.entity, "lead")
+        self.assertEqual(fields["STATUS_ID"], "NEW")
+        self.assertEqual(fields["SOURCE_ID"], "102")
+        self.assertEqual(fields["ASSIGNED_BY_ID"], "5312")
+        self.assertEqual(fields["TITLE"], "LR231_Тест")
+        self.assertEqual(fields["COMMENTS"], "Канал: Тестовый канал\nИсточник: Тест")
+        self.assertNotIn(fields["PHONE"][0]["VALUE"], fields["TITLE"])
+
 
 if __name__ == "__main__":
     unittest.main()

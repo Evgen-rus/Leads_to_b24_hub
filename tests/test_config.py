@@ -17,7 +17,7 @@ class ConfigTests(unittest.TestCase):
         projects = load_projects(ROOT / "config")
         self.assertEqual(
             {project.code for project in projects},
-            {"metalwork", "werus", "vkc", "prolog", "hirehub", "supermet", "tochkap", "praktikm"},
+            {"metalwork", "werus", "vkc", "prolog", "hirehub", "supermet", "supermet_lr231", "tochkap", "praktikm"},
         )
 
     def test_optional_sheet_name_env_is_not_required(self) -> None:

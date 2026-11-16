@@ -1,0 +1,22 @@
+code: supermet_lr231
+name: СуперМет — LR231
+enabled: false
+
+google:
+  spreadsheet_id_env: SUPERMET_LR231_GOOGLE_SHEET_ID
+  sheet_name: Данные
+  result_header: Статус_Б24
+
+bitrix:
+  webhook_env: SUPERMET_LR231_BITRIX_WEBHOOK_URL
+  fields:
+    TITLE: {template: "LR231_{source_lead}"}
+    PHONE: {phone: true, value_type: WORK}
+    SOURCE_ID: {value: "102"}
+    STATUS_ID: {value: NEW}
+    COMMENTS: {template: "Канал: {channel}\nИсточник: {source_lead}"}
+
+assignment:
+  members:
+    - id: "5312"
+      weight: 1
