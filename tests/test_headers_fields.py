@@ -55,7 +55,7 @@ class HeaderAndFieldTests(unittest.TestCase):
 
     def test_supermet_lr231_uses_client_requested_settings(self) -> None:
         project = next(item for item in load_projects(ROOT / "config") if item.code == "supermet_lr231")
-        self.assertFalse(project.enabled)
+        self.assertTrue(project.enabled)
         self.assertEqual(project.assignment.resolved_cycle(), ("5312",))
         fields = build_bitrix_fields(project, {
             "phone": "+70000000000", "source_lead": "Тест", "channel": "Тестовый канал",

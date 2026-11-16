@@ -112,8 +112,9 @@ PHONE: {phone: true, value_type: WORK}
 `NEW`, источником `102` («САНКТ-ПЕТЕРБУРГ. LeadRecord. Металлобаза Волхонка»)
 и ответственным `5312` («Системный Администратор Битрикс24»).
 Таблица и webhook задаются через `SUPERMET_LR231_GOOGLE_SHEET_ID` и
-`SUPERMET_LR231_BITRIX_WEBHOOK_URL`. Автоотправка пока выключена (`enabled: false`);
-старый проект `supermet` не меняется.
+`SUPERMET_LR231_BITRIX_WEBHOOK_URL`. Автоотправка включена (`enabled: true`)
+в общем cron: по будням в 08:31–17:31 по Москве, один раз в час.
+Старый проект `supermet` не меняется.
 
 ## ПрактикМ LR223
 

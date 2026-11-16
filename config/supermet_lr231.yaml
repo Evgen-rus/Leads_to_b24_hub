@@ -1,6 +1,6 @@
 code: supermet_lr231
 name: СуперМет — LR231
-enabled: false
+enabled: true
 
 google:
   spreadsheet_id_env: SUPERMET_LR231_GOOGLE_SHEET_ID
